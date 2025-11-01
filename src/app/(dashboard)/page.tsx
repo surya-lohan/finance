@@ -1,8 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { UserButton } from "@clerk/nextjs";
+"use client"
+import { useGetAccounts } from "../../../features/accounts/api/use-get-account"
 
-export default function Home() {
+export default  function Home() {
+  const accountsQuery =  useGetAccounts()
   return (
-    <UserButton  />
+    <div>
+      {accountsQuery.data?.name}
+    </div>
   )
 }
