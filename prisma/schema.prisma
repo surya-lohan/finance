@@ -13,6 +13,6 @@ model Accounts {
   id      String     @id @unique
   name    String  
   plaidId String?    
-  userId  String  @unique
+  userId  String  
 }
 

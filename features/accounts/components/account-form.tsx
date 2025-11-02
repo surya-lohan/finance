@@ -13,7 +13,6 @@ import {
     FormLabel,
     FormMessage
 } from "@/components/ui/form"
-import { id } from "zod/v4/locales";
 
 const formSchema = z.object({
     name: z.string()
