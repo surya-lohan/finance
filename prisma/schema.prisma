@@ -10,8 +10,9 @@ datasource db {
 }
 
 model Accounts {
-  id      Int     @id @unique
+  id      String     @id @unique
   name    String  
-  plaidId String  
+  plaidId String?    
   userId  String  @unique
 }
+
