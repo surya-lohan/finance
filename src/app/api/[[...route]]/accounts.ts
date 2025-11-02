@@ -5,6 +5,7 @@ import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
 import { zValidator } from "@hono/zod-validator";
 import { string, z } from "zod/v4";
 import { createId } from "@paralleldrive/cuid2"
+import { error } from "console";
 
 const app = new Hono()
     .get("/",
@@ -123,6 +124,96 @@ const app = new Hono()
             return c.json({
                 data
             })
+        }
+    )
+    .patch("/:id",
+
+        clerkMiddleware(),
+
+        zValidator("param", z.object({
+            id: z.string().optional()
+        })),
+
+        zValidator("json", z.object({
+            name: z.string()
+        })),
+
+        async (c) => {
+            const auth = getAuth(c);
+
+            const { id } = c.req.valid("param");
+            const values = c.req.valid("json");
+
+            if (!id) {
+                return c.json({error: "Missing Id"}, 400)
+            }
+
+            if (!auth?.userId) {
+                return c.json({error: "Unauthorised" }, 401)
+            }
+
+            const data = await prisma.accounts.update({
+                data: {
+                    name: values.name
+                },
+                where: {
+                    id: id,
+                    userId: auth.userId
+                },
+                select: {
+                    name: true,
+                    id: true
+                }
+            })
+
+            if (!data) {
+                return c.json({
+                    error: "Oops! Account not found"
+                }, 404)
+            }
+
+            return c.json(data)
+        }
+    )
+    .delete("/:id",
+
+        clerkMiddleware(),
+
+        zValidator("param", z.object({
+            id: z.string().optional()
+        })),
+
+        async (c) => {
+            const auth = getAuth(c);
+
+            const { id } = c.req.valid("param");
+            
+            if (!id) {
+                return c.json({error: "Missing Id"}, 400)
+            }
+
+            if (!auth?.userId) {
+                return c.json({error: "Unauthorised" }, 401)
+            }
+
+            const data = await prisma.accounts.delete({
+                where: {
+                    id: id,
+                    userId: auth.userId
+                },
+                select: {
+                    name: true,
+                    id: true
+                }
+            })
+
+            if (!data) {
+                return c.json({
+                    error: "Oops! Account not found"
+                }, 404)
+            }
+
+            return c.json(data)
         }
     )
 

@@ -2,6 +2,7 @@ import {z} from "zod/v4";
 import { Trash } from "lucide-react";
 import { useForm } from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod"
+import { useEffect } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,12 @@ export const AccountForm = ({
         resolver: zodResolver(formSchema),
         defaultValues: defaultValues
     });
+
+    // useEffect(() => {
+    //     if (defaultValues) {
+    //         form.reset(defaultValues);
+    //     }
+    // }, [defaultValues, form]);
 
     const handleSubmit = (values: FormValues) => {
         onSubmit(values)

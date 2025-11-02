@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ArrowUpDown } from "lucide-react"
 import Actions from "./actions";
 
-export type ResponseType = InferResponseType<typeof client.api.accounts.$get, 200>["accounts"]
+export type ResponseType = InferResponseType<typeof client.api.accounts.$get, 200>["accounts"][number]
 
 export const columns: ColumnDef<ResponseType>[] = [
     {
@@ -53,6 +53,6 @@ export const columns: ColumnDef<ResponseType>[] = [
     },
     {
         id: "actions",
-        cell: ({row}) => <Actions id={row.original[0]?.id} />
+        cell: ({row}) => <Actions id={row.original.id} />
     }
 ]
