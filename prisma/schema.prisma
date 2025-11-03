@@ -16,3 +16,10 @@ model Accounts {
   userId  String  
 }
 
+model Categories {
+  id      String     @id @unique
+  name    String  
+  plaidId String?    
+  userId  String  
+}
+

@@ -9,8 +9,8 @@ import {
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { QueryProvider } from "../../providers/query-provider";
-import { SheetProvider } from "../../providers/sheet-provider";
+import { QueryProvider } from "../providers/query-provider";
+import { SheetProvider } from "../providers/sheet-provider";
 import { Toaster } from "sonner";
 
 const geistSans = Geist({

@@ -9,26 +9,26 @@ import {
 } from "@/components/ui/card"
 import { Loader2, Plus } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useNewAccount } from "../../../features/accounts/hooks/use-new-account";
 
 import { columns } from "./columns"
 import { DataTable } from "./data-table";
-import { useGetAccounts } from "../../../features/accounts/api/use-get-accounts";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useBulkDeleteAccounts } from "../../../features/accounts/hooks/use-bulk-delete-accounts";
 
+import { useNewCategory } from "@/features/categories/hooks/use-new-category";
+import { useBulkDeleteCategories } from "@/features/categories/hooks/use-bulk-delete-categories";
+import { useGetCategories } from "@/features/categories/api/use-get-categories";
 
 
 const Accounts = () => {
 
-    const newAccount = useNewAccount();
-    const accountsQuery = useGetAccounts();
-    const deleteAccounts = useBulkDeleteAccounts();
+    const newCategory = useNewCategory();
+    const categoriesQuery = useGetCategories();
+    const deleteCategories = useBulkDeleteCategories();
 
-    const isDisabled =  accountsQuery.isLoading || deleteAccounts.isPending
-    const accounts = accountsQuery.data || []
+    const isDisabled =  categoriesQuery.isLoading || deleteCategories.isPending
+    const categories = categoriesQuery.data || []
 
-    if (accountsQuery.isLoading) {
+    if (categoriesQuery.isLoading) {
         return (
             <div className="max-w-screen-2xl  mx-auto w-full pb-10 -mt-24">
                 <Card className="border-none drop-shadow-sm ">
@@ -50,9 +50,9 @@ const Accounts = () => {
             <Card className="border-none drop-shadow-sm ">
                 <CardHeader className="gap-y-2 lg:flex lg:items-center lg:justify-between ">
                     <CardTitle className="text-xl line-clamp-1 ">
-                        Accounts
+                        Categories
                     </CardTitle>
-                    <Button onClick={newAccount.onOpen} size="sm">
+                    <Button onClick={newCategory.onOpen} size="sm">
                         <Plus />
                         Add New
                     </Button>
@@ -64,11 +64,11 @@ const Accounts = () => {
                         columns={columns as unknown as ColumnDef<{ name: string; id: string }, unknown>[]}
                         onDelete={(row) => {
                             const ids = row.map((r) => r.original.id);
-                            deleteAccounts.mutate({
+                            deleteCategories.mutate({
                                 json: { ids }
                             });
                         }}
-                        data={accounts} />
+                        data={categories} />
                 </CardContent>
             </Card>
         </div>
