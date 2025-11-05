@@ -25,12 +25,12 @@ model Categories {
 }
 
 model Transactions {
-  id           String     @id @unique 
+  id           String      @id @unique
   amount       Int
   payee        String
-  date         DateTime   @default(now())
+  date         DateTime    @default(now())
   accountId    String
-  account      Accounts   @relation(fields: [accountId], references: [id])
+  account      Accounts    @relation(fields: [accountId], references: [id])
   categoriesId String?
   categories   Categories? @relation(fields: [categoriesId], references: [id])
 }

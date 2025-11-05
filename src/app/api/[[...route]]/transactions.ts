@@ -8,6 +8,16 @@ import { createId } from "@paralleldrive/cuid2"
 import { error } from "console";
 import { subDays, parse } from "date-fns"
 
+const transactionSchema = z.object({
+    id: z.string(),
+    amount: z.number().int(),
+    payee: z.string(),
+    date: z.string().or(z.date()),
+    accountId: z.string(),
+    categoriesId: z.string().optional().nullable(),
+});
+
+
 const app = new Hono()
     .get("/",
 
@@ -34,9 +44,14 @@ const app = new Hono()
             const endDate = to ? parse(to, "yyy-MM-dd", new Date()) : defaultTo;
 
             const data = await prisma.transactions.findMany({
-                include: {
+                select: {
+                    id: true,
                     account: true,
-                    categories: true
+                    categories: true,
+                    amount: true,
+                    payee: true,
+                    accountId: true,
+                    date: true
                 },
                 where: {
                     account: {
@@ -136,7 +151,7 @@ const app = new Hono()
                 return c.json({ error: "Unauthorised" }, 401)
             }
 
-            
+
 
             const data = await prisma.transactions.deleteMany({
                 where: {
@@ -152,6 +167,32 @@ const app = new Hono()
             return c.json({
                 data
             })
+        }
+    )
+    .post("/bulk-create",
+        clerkMiddleware(),
+        zValidator("json", z.array(transactionSchema.omit({
+            id: true
+        }))
+        ),
+        async (c) => {
+            const auth = getAuth(c);
+
+            const values = c.req.valid("json");
+
+            if (!auth?.userId) {
+                return c.json({
+                    error: "Unauthorised"
+                }, 401)
+            }
+
+            const data = await prisma.transactions.createMany({
+                data: values.map(transaction => ({
+                    ...transaction,
+                    id: createId()
+                }))
+            })
+
         }
     )
     .patch("/:id",
@@ -236,7 +277,7 @@ const app = new Hono()
                 where: {
                     id: id,
                     account: {
-                    userId: auth.userId
+                        userId: auth.userId
                     }
                 },
                 select: {

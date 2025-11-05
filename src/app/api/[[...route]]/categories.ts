@@ -145,11 +145,11 @@ const app = new Hono()
             const values = c.req.valid("json");
 
             if (!id) {
-                return c.json({error: "Missing Id"}, 400)
+                return c.json({ error: "Missing Id" }, 400)
             }
 
             if (!auth?.userId) {
-                return c.json({error: "Unauthorised" }, 401)
+                return c.json({ error: "Unauthorised" }, 401)
             }
 
             const data = await prisma.categories.update({
@@ -187,13 +187,13 @@ const app = new Hono()
             const auth = getAuth(c);
 
             const { id } = c.req.valid("param");
-            
+
             if (!id) {
-                return c.json({error: "Missing Id"}, 400)
+                return c.json({ error: "Missing Id" }, 400)
             }
 
             if (!auth?.userId) {
-                return c.json({error: "Unauthorised" }, 401)
+                return c.json({ error: "Unauthorised" }, 401)
             }
 
             const data = await prisma.categories.delete({
