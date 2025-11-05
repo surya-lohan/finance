@@ -6,27 +6,29 @@ import {
     SheetContent,
     SheetTitle
 } from "@/components/ui/sheet"
-import { AccountForm } from "./account-form"
-import { useCreateAccount } from "../hooks/use-create-transaction"
-import { useOpenAccount } from "../hooks/use-open-account"
-import { useGetAccount } from "../api/use-get-transaction"
+import { TransactionForm } from "./transaction-form"
+import { useCreateTransaction } from "../hooks/use-create-transaction"
+import { useOpenTransaction } from "../hooks/use-open-transaction"
+import { useGetTransaction } from "../api/use-get-transaction"
 import { Loader2 } from "lucide-react"
-import { useEditAccount } from "../hooks/use-edit-transaction"
-import { useDeleteAccount } from "../hooks/use-delete-transaction"
+import { useEditTransaction } from "../hooks/use-edit-transaction"
+import { useDeleteTransaction } from "../hooks/use-delete-transaction"
 import { useConfirm } from "@/hooks/use-confirm"
-const formSchema = z.object({
-    name: z.string()
+import { transactionSchema } from "@/app/api/[[...route]]/transactions"
+
+const formSchema = transactionSchema.omit({
+    id: true
 })
 
 type FormValues = z.input<typeof formSchema>;
 
-export const EditAccountSheet = () => {
+export const EditTransactionSheet = () => {
 
-    const { isOpen, onClose, id } = useOpenAccount()
+    const { isOpen, onClose, id } = useOpenTransaction()
 
-    const accountQuery = useGetAccount(id);
-    const editMutation = useEditAccount(id);
-    const deleteMutation = useDeleteAccount(id);
+    const accountQuery = useGetTransaction(id);
+    const editMutation = useEditTransaction(id);
+    const deleteMutation = useDeleteTransaction(id);
 
     const isPending = editMutation.isPending || deleteMutation.isPending;
     const isLoading = accountQuery.isLoading;
@@ -45,7 +47,7 @@ export const EditAccountSheet = () => {
     }
 
     const defaultValues = accountQuery.data ? {
-        name: accountQuery.data.name
+        account: accountQuery.data.account.name
     } : {
         name: ""
     }
@@ -81,7 +83,7 @@ export const EditAccountSheet = () => {
                             <Loader2 className="size-4 text-muted-foreground animate-spin" />
                         </div>
                     ) : (
-                        <AccountForm
+                        <TransactionForm
                             id={id}
                             onSubmit={onSubmit}
                             disabled={isPending}
