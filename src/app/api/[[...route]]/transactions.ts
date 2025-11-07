@@ -33,12 +33,11 @@ const app = new Hono()
                 }
 
                 const defaultTo = new Date();
-                const defaultFrom = subDays(defaultTo, 730)
+                const defaultFrom = subDays(defaultTo, 365)
 
                 let startDate = defaultFrom;
                 let endDate = defaultTo;
 
-                // Only parse dates if they are provided and not empty
                 try {
                     if (from && from.trim()) {
                         startDate = parse(from, "yyyy-MM-dd", new Date());
