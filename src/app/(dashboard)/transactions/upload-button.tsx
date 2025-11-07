@@ -21,7 +21,7 @@ export const UploadButton = ({ onUpload }: Props) => {
                     <Button
                         {...getRootProps()}
                         size="sm"
-                        className="w-full lg:w-auto"
+                        className="w-fit lg:w-auto"
                     >
                         <Upload className="size-4 mr-2" />
                         Import
