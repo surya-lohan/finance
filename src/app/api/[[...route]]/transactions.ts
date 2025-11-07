@@ -33,7 +33,7 @@ const app = new Hono()
                 }
 
                 const defaultTo = new Date();
-                const defaultFrom = subDays(defaultTo, 30)
+                const defaultFrom = subDays(defaultTo, 730)
 
                 let startDate = defaultFrom;
                 let endDate = defaultTo;
@@ -94,7 +94,6 @@ const app = new Hono()
         async (c) => {
             const auth = getAuth(c);
             const { id } = c.req.valid("param");
-            console.log(id)
             if (!id) {
                 return c.json({ error: "Missing id" }, 400);
             }
@@ -205,10 +204,16 @@ const app = new Hono()
     )
     .post("/bulk-create",
         clerkMiddleware(),
-        zValidator("json", z.array(transactionSchema.omit({
-            id: true
-        }))
-        ),
+        zValidator("json", z.array(
+            z.object({
+                amount: z.number(),
+                payee: z.string(),
+                accountId: z.string(),
+                date: z.string().or(z.date()).optional(),
+                categoriesId: z.string().optional().nullable(),
+                notes: z.string().optional().nullable()
+            })
+        )),
         async (c) => {
             const auth = getAuth(c);
 
@@ -220,9 +225,26 @@ const app = new Hono()
                 }, 401)
             }
 
+            // Verify that the account belongs to the user
+            if (values.length > 0) {
+                const accountId = values[0].accountId;
+                const account = await prisma.accounts.findUnique({
+                    where: { id: accountId }
+                });
+
+                if (!account || account.userId !== auth.userId) {
+                    return c.json({
+                        error: "Account not found or unauthorized"
+                    }, 403);
+                }
+            }
+
             const data = await prisma.transactions.createMany({
                 data: values.map(transaction => ({
                     ...transaction,
+                    date: typeof transaction.date === 'string'
+                        ? new Date(transaction.date)
+                        : transaction.date,
                     notes: transaction.notes || "",
                     id: createId()
                 }))

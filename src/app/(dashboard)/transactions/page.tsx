@@ -21,6 +21,10 @@ import { useGetTransactions } from "@/features/transactions/api/use-get-transact
 import { useState } from "react";
 import { UploadButton } from "./upload-button";
 import { ImportCard } from "./import-card";
+import { transactionSchema } from "../../../../prisma/transactionSchema";
+import { useSelectAccounts } from "@/features/accounts/hooks/use-select-account";
+import { toast } from "sonner";
+import { useBulkCreateTransactions } from "@/features/transactions/hooks/use-bulk-create-transactions";
 
 enum VARIANTS {
     LIST = "LIST",
@@ -37,6 +41,8 @@ const INITIAL_IMPORT_RESULTS = {
 
 const Transactions = () => {
 
+    const [AccountDialog, confirm] = useSelectAccounts();
+
     const [variant, setVariant] = useState<VARIANTS>(VARIANTS.LIST);
     const [importResults, setImportResults] = useState(INITIAL_IMPORT_RESULTS);
 
@@ -47,17 +53,45 @@ const Transactions = () => {
     }
 
     const onCancelImport = () => {
-        console.log("onCancelImport called, resetting variant to LIST");
         setImportResults(INITIAL_IMPORT_RESULTS);
         setVariant(VARIANTS.LIST)
     }
 
     const newTransaction = useNewATransaction();
+    const createTransactions = useBulkCreateTransactions();
     const transactionsQuery = useGetTransactions();
     const deleteTransactions = useBulkDeleteTransactions();
 
     const isDisabled = transactionsQuery.isLoading || deleteTransactions.isPending
     const transactions = transactionsQuery.data || []
+
+    const onSubmitImport = async (
+        values: any[]
+    ) => {
+        const accountId = await confirm();
+
+        if (!accountId) {
+            return toast.error("Please select an account to continue.")
+        }
+
+        const data = values.map((value) => {
+
+            return {
+                payee: value.payee,
+                amount: value.amount,
+                date: value.date,
+                accountId: accountId as string,
+                categoriesId: value.categoriesId || null,
+                notes: value.notes || null
+            };
+        });
+
+        createTransactions.mutate({ json: data }, {
+            onSuccess: () => {
+                onCancelImport();
+            }
+        })
+    }
 
     if (transactionsQuery.isLoading) {
         return (
@@ -79,10 +113,11 @@ const Transactions = () => {
     if (variant === VARIANTS.IMPORT) {
         return (
             <>
+                <AccountDialog />
                 <ImportCard
                     data={importResults.data}
                     onCancel={onCancelImport}
-                    onSubmit={() => {}}
+                    onSubmit={onSubmitImport}
                 />
             </>
         )
